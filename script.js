@@ -240,26 +240,482 @@ function renderCountry(data, className = '') {
   countriesContainer.insertAdjacentHTML('beforeend', html);
   countriesContainer.style.opacity = 1;
 }
-const renderError = function (msg) {
-  countriesContainer.insertAdjacentText('beforeEnd', msg);
-  countriesContainer.style.opacity = 1;
+// const renderError = function (msg) {
+//   countriesContainer.insertAdjacentText('beforeEnd', msg);
+//   countriesContainer.style.opacity = 1;
+// };
+
+// const whereAmI = function (lat, lng) {
+//   fetch(
+//     `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
+//   )
+//     .then(response => response.json())
+//     .then(data => {
+//       console.log(data);
+//       console.log(`You are in ${data.city}, ${data.countryName}`);
+//       return fetch(`https://restcountries.com/v3.1/name/${data.countryName}`);
+//     })
+//     .then(response => response.json())
+//     .then(data => renderCountry(data[0]))
+//     .catch(err => console.error(`${err.message}`));
+// };
+
+// whereAmI(52.508, 13.381); // Berlin, Germany
+// whereAmI(19.037, 72.873); // Mumbai, India
+// whereAmI(-33.933, 18.474); //Cape Town South Africa
+
+/*
+
+THE EVENT LOOP IN PRACTICE
+
+*/
+
+/*
+The console log for the code above (priority)
+
+
+Test Start
+script.js:279 Test end
+script.js:278 Resolved promise 1
+script.js:277 0 sec timer
+
+*/
+
+// console.log('Test Start');
+// setTimeout(() => console.log('0 sec timer'), 0);
+// Promise.resolve('Resolved promise 1').then(res => console.log(res));
+
+// Promise.resolve('Resolved promise 2').then(res => {
+//   for (let i = 0; i < 5000; i++) console.log(res);
+// });
+// console.log('Test end');
+
+/*
+
+BUILD A SIMPLE PROMISE
+
+*/
+
+// Simulate a lottery
+
+// const lotteryPromise = new Promise(function (resolve, reject) {
+//   console.log('The lottery draw begin');
+//   setTimeout(function () {
+//     if (Math.random() >= 0.5) {
+//       resolve('You WIN :)');
+//     } else {
+//       reject(new Error('You lost your money :('));
+//     }
+//   }, 2000);
+// });
+
+// lotteryPromise.then(res => console.log(res)).catch(err => console.error(err));
+
+// // Promisify -  seTimeot
+
+// const wait = function (seconds) {
+//   return new Promise(function (resolve) {
+//     setTimeout(resolve, seconds * 1000);
+//   });
+// };
+
+// wait(2)
+//   .then(() => {
+//     console.log('1 second passed');
+//     return wait(1);
+//   })
+//   .then(() => {
+//     console.log('2 seconds passed');
+//     return wait(2);
+//   })
+//   .then(() => {
+//     console.log('3 seconds passed');
+//     return wait(3);
+//   })
+//   .then(() => console.log('4 seconds passed'));
+
+// the above is the same
+
+// setTimeout(() => {
+//   console.log('1 second passed');
+//   setTimeout(() => {
+//     console.log('2 seconds passed');
+//     setTimeout(() => {
+//       console.log('3 seconds passed');
+//       setTimeout(() => {
+//         console.log('4 seconds passed');
+//       }, 1000);
+//     }, 1000);
+//   }, 1000);
+// }, 1000);
+
+// Promise.resolve('abc').then(x => console.log(x));
+// Promise.reject(new Error('Problem')).catch(x => console.error(x));
+
+/*
+
+PROMISIFYING THE GEOLOCATION API
+
+*/
+
+// console.log('Getting the current position');
+
+// Promisify
+// const getPositon = function () {
+//   return new Promise(function (resolve, reject) {
+//     // navigator.geolocation.getCurrentPosition(
+//     //   position => resolve(position),
+//     //   err => reject(new Error('I didnt get your position'))
+//     // );
+//     navigator.geolocation.getCurrentPosition(resolve, reject);
+//   });
+// };
+
+// getPositon().then(position => console.log(position));
+
+// const whereAmI = function () {
+//   getPositon()
+//     .then(pos => {
+//       const { latitude: lat, longitude: lng } = pos.coords;
+//       return fetch(
+//         `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
+//       );
+//     })
+//     .then(response => response.json())
+//     .then(data => {
+//       console.log(data);
+//       console.log(`You are in ${data.city}, ${data.countryName}`);
+//       return fetch(`https://restcountries.com/v3.1/name/${data.countryName}`);
+//     })
+//     .then(response => response.json())
+//     .then(data => renderCountry(data[0]))
+//     .catch(err => console.error(`${err.message}`));
+// };
+
+// btn.addEventListener('click', whereAmI);
+
+/*
+Coding Challenge #2
+For this challenge you will actually have to watch the video! Then, build the image
+loading functionality that I just showed you on the screen.
+Your tasks:
+Tasks are not super-descriptive this time, so that you can figure out some stuff by
+yourself. Pretend you're working on your own 😉
+PART 1
+1. Create a function 'createImage' which receives 'imgPath' as an input.
+This function returns a promise which creates a new image (use
+document.createElement('img')) and sets the .src attribute to the
+provided image path
+2. When the image is done loading, append it to the DOM element with the
+'images' class, and resolve the promise. The fulfilled value should be the
+image element itself. In case there is an error loading the image (listen for
+the'error' event), reject the promise
+3. If this part is too tricky for you, just watch the first part of the solution
+PART 2
+4. Consume the promise using .then and also add an error handler
+5. After the image has loaded, pause execution for 2 seconds using the 'wait'
+function we created earlier
+6. After the 2 seconds have passed, hide the current image (set display CSS
+property to 'none'), and load a second image (Hint: Use the image element
+returned by the 'createImage' promise to hide the current image. You will
+need a global variable for that 😉)
+7. After the second image has loaded, pause execution for 2 seconds again
+8. After the 2 seconds have passed, hide the current image
+Test data: Images in the img folder. Test the error handler by passing a wrong
+image path. Set the network speed to “Fast 3G” in the dev tools Network tab,
+otherwise images load too fast
+GOOD LUCK 😀
+*/
+
+// find the image class
+// const imgContainer = document.querySelector('.images');
+
+// Add a wait function for for the loading time
+// const wait = function (seconds) {
+//   return new Promise(function (resolve) {
+//     setTimeout(resolve, seconds * 1000);
+//   });
+// };
+
+// // Add a function that creates the images
+// const createImage = function (imgPath) {
+//   return new Promise(function (resolve, reject) {
+//     const img = document.createElement('img');
+//     img.src = imgPath;
+
+//     img.addEventListener('load', function () {
+//       imgContainer.append(img);
+//       resolve(img);
+//     });
+//     img.addEventListener('error', function () {
+//       reject(new Error('Cant load the image'));
+//     });
+//   });
+// };
+
+// Add the current image to a variable outside so you can access it
+// let currentImg;
+
+// Call the createImage function and make it switch images every 3 seconds
+// createImage('img/img-1.jpg')
+//   .then(img => {
+//     currentImg = img;
+//     console.log('Image 1 is loaded');
+//     return wait(3);
+//   })
+//   .then(() => {
+//     currentImg.style.display = 'none';
+//     return createImage('img/img-2.jpg');
+//   })
+//   .then(img => {
+//     currentImg = img;
+//     console.log('Image 2 is loaded');
+//     return wait(3);
+//   })
+//   .then(() => {
+//     currentImg.style.display = 'none';
+//     return createImage('img/img-3.jpg');
+//   })
+//   .then(img => {
+//     currentImg = img;
+//     console.log('Image 3 is loaded');
+//     return wait(3);
+//   })
+//   .then(() => {
+//     currentImg.style.display = 'none';
+//   })
+//   .catch(err => console.error('Image not found'));
+
+/*
+
+CONSUMING PROMISES ASYNC/AWAIT
+
+*/
+
+// const getPositon = function () {
+//   return new Promise(function (resolve, reject) {
+//     navigator.geolocation.getCurrentPosition(resolve, reject);
+//   });
+// };
+// const whereAmI = async function () {
+//   try {
+//     // Geolocation
+//     const pos = await getPositon();
+//     const { latitude: lat, longitude: lng } = pos.coords;
+//     // reverse geocoding
+//     const reverseGeo = await fetch(
+//       `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
+//     );
+//     if (!reverseGeo.ok) throw new Error('Problem getting location data');
+//     const dataGeo = await reverseGeo.json();
+
+//     // Country data
+//     const response = await fetch(
+//       `https://restcountries.com/v3.1/name/${dataGeo.countryName}`
+//     );
+//     if (!response.ok) throw new Error('Problem getting country');
+//     const data = await response.json();
+
+//     renderCountry(data[0]);
+//     return `You are in ${dataGeo.city}, ${dataGeo.countryName}`;
+//   } catch (err) {
+//     console.error(err);
+//     renderError(`${err.message}`);
+//     // reject promise returned from async unction
+//     throw err;
+//   }
+// };
+
+// console.log('1: will get location');
+
+// IFFY async function calling other async function!
+
+// (async function () {
+//   try {
+//     const city = await whereAmI();
+//     console.log(city);
+//   } catch (err) {
+//     console.err(`2:${err.message}`);
+//   }
+//   console.log('3: finished getting location');
+// })();
+
+// Try catch - handling errors
+// try {
+//   let y = 1;
+//   const x = 1;
+//   y = 3;
+// } catch (err) {
+//   alert(err.message);
+// }
+
+// Running promises in parallel
+
+// const getJSON = function (url, errorMsg = 'Something went wrong') {
+//   return fetch(url).then(response => {
+//     if (!response.ok) throw new Error(`${errorMsg} (${response.status})`);
+//     return response.json();
+//   });
+// };
+
+// Running the data in sequence
+// const get3Countries = async function (c1, c2, c3) {
+//   try {
+//     const [data1] = await getJSON(`https://restcountries.com/v3.1/name/${c1}`);
+//     const [data2] = await getJSON(`https://restcountries.com/v3.1/name/${c2}`);
+//     const [data3] = await getJSON(`https://restcountries.com/v3.1/name/${c3}`);
+//     console.log(data1.capital, data2.capital, data3.capital);
+//   } catch (err) {
+//     console.error(err);
+//   }
+// };
+
+// Running in parallel to load it faster
+
+// const get3Countries = async function (c1, c2, c3) {
+//   try {
+//     // const [data1] = await getJSON(`https://restcountries.com/v3.1/name/${c1}`);
+//     // const [data2] = await getJSON(`https://restcountries.com/v3.1/name/${c2}`);
+//     // const [data3] = await getJSON(`https://restcountries.com/v3.1/name/${c3}`);
+//     const data = await Promise.all([
+//       getJSON(`https://restcountries.com/v3.1/name/${c1}`),
+//       getJSON(`https://restcountries.com/v3.1/name/${c2}`),
+//       getJSON(`https://restcountries.com/v3.1/name/${c3}`),
+//     ]);
+//     console.log(data.flatMap(d => d[0].capital));
+//   } catch (err) {
+//     console.error(err);
+//   }
+// };
+
+// get3Countries('macedonia', 'canada', 'tanzania');
+
+// Promise.race
+
+// const getJSON = function (url, errorMsg = 'Something went wrong') {
+//   return fetch(url).then(response => {
+//     if (!response.ok) throw new Error(`${errorMsg} (${response.status})`);
+//     return response.json();
+//   });
+// };
+// (async function () {
+//   const res = await Promise.race(
+//     getJSON(`https://restcountries.com/v3.1/name/macedonia`),
+//     getJSON(`https://restcountries.com/v3.1/name/iatly`),
+//     getJSON(`https://restcountries.com/v3.1/name/egypt`)
+//   );
+//   console.log(res[0]);
+// })();
+
+// const timeout = function (s) {
+//   return new Promise(function (_, reject) {
+//     setTimeout(function () {
+//       reject(new Error('request took too long!'));
+//     }, sec * 1000);
+//   });
+// };
+
+// Promise.race([
+//   getJSON(`https://restcountries.com/v3.1/name/macedonia`),
+//   timeout(0.1),
+// ]);
+
+// Promise.allSettled
+// Promise.allSettled([
+//   Promise.resolve('Success'),
+//   Promise.reject('error'),
+//   Promise.resolve('Success 2'),
+// ])
+//   .then(res => console.log(res))
+//   .catch(err => console.error(err));
+
+// Promise.any [ES 2021]
+// Promise.any([
+//   Promise.resolve('Success'),
+//   Promise.reject('error'),
+//   Promise.resolve('Success 2'),
+// ])
+//   .then(res => console.log(res))
+//   .catch(err => console.error(err));
+
+/*
+
+Coding Challenge #3
+Your tasks:
+PART 1
+1. Write an async function 'loadNPause' that recreates Challenge #2, this time
+using async/await (only the part where the promise is consumed, reuse the
+'createImage' function from before)
+2. Compare the two versions, think about the big differences, and see which one
+you like more
+3. Don't forget to test the error handler, and to set the network speed to “Fast 3G”
+in the dev tools Network tab
+PART 2
+1. Create an async function 'loadAll' that receives an array of image paths
+'imgArr'
+2. Use .map to loop over the array, to load all the images with the
+'createImage' function (call the resulting array 'imgs')
+3. Check out the 'imgs' array in the console! Is it like you expected?
+4. Use a promise combinator function to actually get the images from the array 😉
+5. Add the 'parallel' class to all the images (it has some CSS styles)
+Test data Part 2: ['img/img-1.jpg', 'img/img-2.jpg', 'img/img-
+3.jpg']. To test, turn off the 'loadNPause' function
+GOOD LUCK 😀
+
+  */
+
+const imgContainer = document.querySelector('.images');
+const wait = function (seconds) {
+  return new Promise(function (resolve) {
+    setTimeout(resolve, seconds * 1000);
+  });
 };
 
-const whereAmI = function (lat, lng) {
-  fetch(
-    `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`
-  )
-    .then(response => response.json())
-    .then(data => {
-      console.log(data);
-      console.log(`You are in ${data.city}, ${data.countryName}`);
-      return fetch(`https://restcountries.com/v3.1/name/${data.countryName}`);
+let currentImg;
+
+const loadNPause = async function () {
+  const createImage = await createImage('img/img-1.jpg')
+    .then(img => {
+      currentImg = img;
+      console.log('Image 1 is loaded');
+      return wait(3);
     })
-    .then(response => response.json())
-    .then(data => renderCountry(data[0]))
-    .catch(err => console.error(`${err.message}`));
-};
+    .then(() => {
+      currentImg.style.display = 'none';
+      return createImage('img/img-2.jpg');
+    })
+    .then(img => {
+      currentImg = img;
+      console.log('Image 2 is loaded');
+      return wait(3);
+    })
+    .then(() => {
+      currentImg.style.display = 'none';
+      return createImage('img/img-3.jpg');
+    })
+    .then(img => {
+      currentImg = img;
+      console.log('Image 3 is loaded');
+      return wait(3);
+    })
+    .then(() => {
+      currentImg.style.display = 'none';
+    })
+    .catch(err => console.error('Image not found'));
 
-whereAmI(52.508, 13.381); // Berlin, Germany
-whereAmI(19.037, 72.873); // Mumbai, India
-whereAmI(-33.933, 18.474); //Cape Town South Africa
+  // Add a function that creates the images
+  const createImage = function (imgPath) {
+    return new Promise(function (resolve, reject) {
+      const img = document.createElement('img');
+      img.src = imgPath;
+
+      img.addEventListener('load', function () {
+        imgContainer.append(img);
+        resolve(img);
+      });
+      img.addEventListener('error', function () {
+        reject(new Error('Cant load the image'));
+      });
+    });
+  };
+};
